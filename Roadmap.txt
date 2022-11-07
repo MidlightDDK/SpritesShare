@@ -48,15 +48,15 @@ Create GitHub repo
 
 
 Roadmap
-	Create GitHub repos
+	*Create GitHub repos
 	API
-		Set up Google Cloud Functions project
-		MAKE - GET /
-		MAKE - error route
-		MAKE - POST /sprites
-		MAKE - GET /sprites/:id
-		MAKE - POST /sprites/:id
-		MAKE - GET /sprites
+		*Set up Google Cloud Functions project
+		*MAKE - GET /
+		*MAKE - error route
+		*MAKE - GET /sprites/:id
+		*MAKE - GET /sprites
+		*MAKE - POST /sprites
+		MAKE - POST /sprites/:id --- Update an array? Rating struct?
 		MAKE - GET /sprites?query
 	Unity App
 		Prepare all API querys
