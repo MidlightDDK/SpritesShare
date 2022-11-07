@@ -1,0 +1,68 @@
+Create GitHub repo
+	SpritesShare API - Golang Google Cloud Functions App
+		GET / - Welcome page
+		GET /sprites?query - Get All Sprites
+		POST /sprites - Add a Sprites
+		GET /sprites/:id - Get a Sprites
+		POST /sprites/:id - Rate a Sprites
+
+	Sprites struct
+		UTILITY
+			id - string
+			dateCreated - string
+		VALUES
+			name - string
+			description - string
+			dimensionX - uint
+			dimensionY - uint
+			tags - string[]
+			ratings - int[string]
+
+	SpritesShare Client - Unity App
+		Welcome
+			TextMeshPro - "Sprites Share"
+			Button - "Browse" -> Go to Browse screen
+			Button - "Import" -> Go to Import screen
+		Import
+			Image - Sprites preview
+			Button - "Import" -> Open import window
+			TextField - "Name"
+			TextField - "Description"
+			TextField - "Tags" - [azAZ09]
+			Button - "Share" -> Send the Sprites online
+		Browse
+			TextField - "Tags" - [azAZ09]
+			Button - "Search" -> Browse Sprites
+			SPRITEBOX GridView Scroll
+				Image - Preview
+				TextField - Name
+		View
+			Image - Sprites preview
+			TextField - "Name"
+			TextField - "Description"
+			TextField - "Tags" - [azAZ09]
+			TextField - "Ratings"
+			TextField - "Your Rating"
+			Image - Ratings Stars
+			Button - "Rate" -> Rate the Sprites
+
+
+Roadmap
+	Create GitHub repos
+	API
+		Set up Google Cloud Functions project
+		MAKE - GET /
+		MAKE - error route
+		MAKE - POST /sprites
+		MAKE - GET /sprites/:id
+		MAKE - POST /sprites/:id
+		MAKE - GET /sprites
+		MAKE - GET /sprites?query
+	Unity App
+		Prepare all API querys
+		MAKE - Welcome
+		MAKE - Import
+		MAKE - Browse
+		MAKE - View
+		Prepare a tutorial for how to use
+		Host on itch
