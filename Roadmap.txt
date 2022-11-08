@@ -56,8 +56,10 @@ Roadmap
 		*MAKE - GET /sprites/:id
 		*MAKE - GET /sprites
 		*MAKE - POST /sprites
-		MAKE - POST /sprites/:id --- Update an array? Rating struct?
+		*MAKE - POST /sprites/:id
+		*Validate tags string [azAZ01]
 		MAKE - GET /sprites?query
+		Pagination?
 	Unity App
 		Prepare all API querys
 		MAKE - Welcome
@@ -65,4 +67,5 @@ Roadmap
 		MAKE - Browse
 		MAKE - View
 		Prepare a tutorial for how to use
+		Ads Portal?
 		Host on itch

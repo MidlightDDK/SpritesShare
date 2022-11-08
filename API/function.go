@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -101,6 +102,8 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 				// Retrieve BODY params
 				var d struct {
 					Name        string   `json:"name"`
+					Content     string   `json:"content"`
+					Author      string   `json:"author"`
 					Description string   `json:"description"`
 					DimensionX  uint16   `json:"dimensionX"`
 					DimensionY  uint16   `json:"dimensionY"`
@@ -112,31 +115,55 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 					json.NewEncoder(w).Encode(data)
 					return
 				} else if d.Name == "" {
-					data := normalMessage{Message: "'name' body param is empty"}
+					data := normalMessage{Message: "'name' string body param is empty"}
+					w.WriteHeader(http.StatusBadRequest)
+					json.NewEncoder(w).Encode(data)
+					return
+				} else if d.Content == "" {
+					data := normalMessage{Message: "'content' string body param is empty"}
+					w.WriteHeader(http.StatusBadRequest)
+					json.NewEncoder(w).Encode(data)
+					return
+				} else if d.Author == "" {
+					data := normalMessage{Message: "'author' string body param is empty"}
 					w.WriteHeader(http.StatusBadRequest)
 					json.NewEncoder(w).Encode(data)
 					return
 				} else if d.Description == "" {
-					data := normalMessage{Message: "'description' body param is empty"}
+					data := normalMessage{Message: "'description' string body param is empty"}
 					w.WriteHeader(http.StatusBadRequest)
 					json.NewEncoder(w).Encode(data)
 					return
 				} else if d.DimensionX == 0 {
-					data := normalMessage{Message: "'dimensionX' body param is empty"}
+					data := normalMessage{Message: "'dimensionX' uint16 body param is empty"}
 					w.WriteHeader(http.StatusBadRequest)
 					json.NewEncoder(w).Encode(data)
 					return
 				} else if d.DimensionY == 0 {
-					data := normalMessage{Message: "'dimensionY' body param is empty"}
+					data := normalMessage{Message: "'dimensionY' uint16 body param is empty"}
 					w.WriteHeader(http.StatusBadRequest)
 					json.NewEncoder(w).Encode(data)
 					return
+				}
+
+				// Validate tags
+				regTester, _ := regexp.Compile("[a-zA-Z0-9]+")
+
+				for i := 0; i < len(d.Tags); i++ {
+					if !regTester.MatchString(d.Tags[i]) {
+						data := normalMessage{Message: "'tags' must only contain characters in range [a-zA-Z0-9]"}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
 				}
 
 				// Add to Database
 				_, _, err := client.Collection("sprites").Add(ctx, map[string]interface{}{
 					"dateCreated": time.Now().UTC(),
 					"name":        d.Name,
+					"content":     d.Content,
+					"author":      d.Author,
 					"description": d.Description,
 					"dimensionX":  d.DimensionX,
 					"dimensionY":  d.DimensionY,
@@ -172,20 +199,34 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 			} else if r.Method == "POST" {
 				// Retrieve BODY params
 				var d struct {
-					Ratings []string `json:"message"`
+					Rating uint8 `json:"rating"`
 				}
+
 				if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
 					data := normalMessage{Message: fmt.Sprintf("%v", err)}
 					w.WriteHeader(http.StatusBadRequest)
 					json.NewEncoder(w).Encode(data)
 					return
+				} else if d.Rating == 0 {
+					data := normalMessage{Message: "'rating' uint8 body param is empty"}
+					w.WriteHeader(http.StatusBadRequest)
+					json.NewEncoder(w).Encode(data)
+					return
 				}
+
+				// Get IP address
+				ipAddress := strings.Split(r.RemoteAddr, ":")
+				extractedIp := strings.Replace(ipAddress[0], ".", " ", -1)
 
 				// Add to Database
 				_, err := client.Collection("sprites").Doc(pathParams[2]).Update(ctx, []firestore.Update{
 					{
 						Path:  "dateCreated",
 						Value: time.Now().UTC(),
+					},
+					{
+						Path:  "ratings." + extractedIp,
+						Value: d.Rating,
 					},
 				})
 				if err != nil {
