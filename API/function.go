@@ -77,8 +77,45 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 					queryAsc = firestore.Asc
 				}
 
+				var dateCreated interface{}
+				if r.URL.Query().Get("lastItem") != "" {
+					dsnap, err := client.Collection("sprites").Doc(r.URL.Query().Get("lastItem")).Get(ctx)
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					} else {
+						dateCreated = dsnap.Data()["dateCreated"]
+					}
+				}
+
+				// Document ref
 				var docs []map[string]interface{}
-				iter := client.Collection("sprites").OrderBy("dateCreated", queryAsc).Limit(queryLimit).Documents(ctx)
+				var queryCollection firestore.Query
+				collectionRef := client.Collection("sprites")
+
+				// Get the tag
+				hasTag := r.URL.Query().Get("tag") != ""
+				if hasTag {
+					queryCollection = collectionRef.Where("tags", "array-contains", r.URL.Query().Get("tag"))
+				}
+
+				// Order by
+				if !hasTag {
+					queryCollection = collectionRef.OrderBy("dateCreated", queryAsc)
+				} else {
+					queryCollection = queryCollection.OrderBy("dateCreated", queryAsc)
+				}
+
+				// Pagination
+				if dateCreated != nil {
+					queryCollection = queryCollection.StartAfter(dateCreated)
+				}
+
+				// Total query
+				iter := queryCollection.Limit(queryLimit).Documents(ctx)
+
 				for {
 					doc, err := iter.Next()
 					if err == iterator.Done {

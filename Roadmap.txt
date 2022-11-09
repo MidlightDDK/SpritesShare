@@ -58,8 +58,21 @@ Roadmap
 		*MAKE - POST /sprites
 		*MAKE - POST /sprites/:id
 		*Validate tags string [azAZ01]
+		*Pagination?
 		MAKE - GET /sprites?query
-		Pagination?
+
+		author =
+		dateCreated <=
+		dateCreated >=
+		dimensionX >=
+		dimensionX <=
+		dimensionY >=
+		dimensionY <=
+		name =
+		tags array-contains-any (tag = tag1,tag2 -> split)
+
+		Indexes?
+
 	Unity App
 		Prepare all API querys
 		MAKE - Welcome
