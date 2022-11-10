@@ -61,17 +61,32 @@ Roadmap
 		*Pagination?
 		MAKE - GET /sprites?query
 
-		author =
-		dateCreated <=
-		dateCreated >=
-		dimensionX >=
-		dimensionX <=
-		dimensionY >=
-		dimensionY <=
-		name =
 		tags array-contains-any (tag = tag1,tag2 -> split)
+		author =
+		name =
+
+		either
+		{
+			dimensionXMin >=
+			dimensionXMax <=
+		}
+		{
+			dimensionYMin >=
+			dimensionYMax <=
+		}
+		{
+			dateCreatedMin >=
+			dateCreatedMax <=
+		}
 
 		Indexes?
+		Cannot combine inequalities
+		Date format : 2006-02-01
+
+		Firestore compare dates
+		firebase.firestore.Timestamp.fromDate(new Date("1900-01-01"));
+		Firebase.Firestore.Timestamp.FromDateTime
+		Install Firestore SDK locally?
 
 	Unity App
 		Prepare all API querys

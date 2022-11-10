@@ -77,6 +77,11 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 					queryAsc = firestore.Asc
 				}
 
+				queryAsc2 := firestore.Desc
+				if r.URL.Query().Get("ascQuery") == "true" {
+					queryAsc2 = firestore.Asc
+				}
+
 				var dateCreated interface{}
 				if r.URL.Query().Get("lastItem") != "" {
 					dsnap, err := client.Collection("sprites").Doc(r.URL.Query().Get("lastItem")).Get(ctx)
@@ -93,19 +98,164 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 				// Document ref
 				var docs []map[string]interface{}
 				var queryCollection firestore.Query
+				queryEmpty := true
 				collectionRef := client.Collection("sprites")
 
-				// Get the tag
-				hasTag := r.URL.Query().Get("tag") != ""
-				if hasTag {
-					queryCollection = collectionRef.Where("tags", "array-contains", r.URL.Query().Get("tag"))
+				// Get query params
+				if r.URL.Query().Get("tags") != "" {
+					queryEmpty = false
+					queryCollection = collectionRef.Where("tags", "array-contains-any", strings.Split(r.URL.Query().Get("tags"), ","))
+				}
+
+				if r.URL.Query().Get("author") != "" {
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("author", "==", r.URL.Query().Get("author"))
+					} else {
+						queryCollection = queryCollection.Where("author", "==", r.URL.Query().Get("author"))
+					}
+				}
+
+				if r.URL.Query().Get("name") != "" {
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("name", "==", r.URL.Query().Get("name"))
+					} else {
+						queryCollection = queryCollection.Where("name", "==", r.URL.Query().Get("name"))
+					}
+				}
+
+				if r.URL.Query().Get("dimensionXMin") != "" {
+					dimensionParsed, err := strconv.Atoi(r.URL.Query().Get("dimensionXMin"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("dimensionX", ">=", dimensionParsed)
+					} else {
+						queryCollection = queryCollection.Where("dimensionX", ">=", dimensionParsed)
+					}
+				}
+
+				if r.URL.Query().Get("dimensionXMax") != "" {
+					dimensionParsed, err := strconv.Atoi(r.URL.Query().Get("dimensionXMax"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("dimensionX", "<=", dimensionParsed)
+					} else {
+						queryCollection = queryCollection.Where("dimensionX", "<=", dimensionParsed)
+					}
+				}
+
+				if r.URL.Query().Get("dimensionYMin") != "" {
+					dimensionParsed, err := strconv.Atoi(r.URL.Query().Get("dimensionYMin"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("dimensionY", ">=", dimensionParsed)
+					} else {
+						queryCollection = queryCollection.Where("dimensionY", ">=", dimensionParsed)
+					}
+				}
+
+				if r.URL.Query().Get("dimensionYMax") != "" {
+					dimensionParsed, err := strconv.Atoi(r.URL.Query().Get("dimensionYMax"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("dimensionY", "<=", dimensionParsed)
+					} else {
+						queryCollection = queryCollection.Where("dimensionY", "<=", dimensionParsed)
+					}
+				}
+
+				if r.URL.Query().Get("dateCreatedMin") != "" {
+					timeFirstParsed, err := time.Parse("2006-01-02", r.URL.Query().Get("dateCreatedMin"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					timeParsed := timeFirstParsed.Format(time.RFC3339Nano)
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("dateCreated", ">=", firestore.Timestamp.FromDateTime(timeParsed))
+					} else {
+						queryCollection = collectionRef.Where("dateCreated", ">=", timeParsed)
+					}
+				}
+
+				if r.URL.Query().Get("dateCreatedMax") != "" {
+					timeFirstParsed, err := time.Parse("2006-01-02", r.URL.Query().Get("dateCreatedMax"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					timeParsed := timeFirstParsed.Format(time.RFC3339Nano)
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("dateCreated", ">=", timeParsed)
+					} else {
+						queryCollection = collectionRef.Where("dateCreated", ">=", timeParsed)
+					}
 				}
 
 				// Order by
-				if !hasTag {
-					queryCollection = collectionRef.OrderBy("dateCreated", queryAsc)
+
+				if r.URL.Query().Get("dimensionXMin") != "" || r.URL.Query().Get("dimensionXMax") != "" {
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.OrderBy("dimensionX", queryAsc2)
+					} else {
+						queryCollection = queryCollection.OrderBy("dimensionX", queryAsc2)
+					}
+				}
+
+				if r.URL.Query().Get("dimensionYMin") != "" || r.URL.Query().Get("dimensionYMax") != "" {
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.OrderBy("dimensionY", queryAsc2)
+					} else {
+						queryCollection = queryCollection.OrderBy("dimensionY", queryAsc2)
+					}
+				}
+
+				if r.URL.Query().Get("dateCreatedMin") != "" || r.URL.Query().Get("dateCreatedMax") != "" {
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.OrderBy("dateCreated", queryAsc2)
+					} else {
+						queryCollection = queryCollection.OrderBy("dateCreated", queryAsc2)
+					}
 				} else {
-					queryCollection = queryCollection.OrderBy("dateCreated", queryAsc)
+					if queryEmpty {
+						queryCollection = collectionRef.OrderBy("dateCreated", queryAsc)
+					} else {
+						queryCollection = queryCollection.OrderBy("dateCreated", queryAsc)
+					}
 				}
 
 				// Pagination
