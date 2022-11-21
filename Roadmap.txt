@@ -88,6 +88,8 @@ Roadmap
 		Firebase.Firestore.Timestamp.FromDateTime
 		Install Firestore SDK locally?
 
+		Query by rating
+
 	Unity App
 		Prepare all API querys
 		MAKE - Welcome

@@ -189,6 +189,38 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 
+				if r.URL.Query().Get("ratingMin") != "" {
+					ratingParsed, err := strconv.Atoi(r.URL.Query().Get("ratingMin"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("rating", ">=", ratingParsed)
+					} else {
+						queryCollection = queryCollection.Where("rating", ">=", ratingParsed)
+					}
+				}
+
+				if r.URL.Query().Get("ratingMax") != "" {
+					ratingParsed, err := strconv.Atoi(r.URL.Query().Get("ratingMax"))
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.Where("rating", "<=", ratingParsed)
+					} else {
+						queryCollection = queryCollection.Where("rating", "<=", ratingParsed)
+					}
+				}
+
 				if r.URL.Query().Get("dateCreatedMin") != "" {
 					timeFirstParsed, err := time.Parse("2006-01-02", r.URL.Query().Get("dateCreatedMin"))
 					if err != nil {
@@ -200,7 +232,7 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 					timeParsed := timeFirstParsed.Format(time.RFC3339Nano)
 					if queryEmpty {
 						queryEmpty = false
-						queryCollection = collectionRef.Where("dateCreated", ">=", firestore.Timestamp.FromDateTime(timeParsed))
+						queryCollection = collectionRef.Where("dateCreated", ">=", timeParsed)
 					} else {
 						queryCollection = collectionRef.Where("dateCreated", ">=", timeParsed)
 					}
@@ -240,6 +272,15 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 						queryCollection = collectionRef.OrderBy("dimensionY", queryAsc2)
 					} else {
 						queryCollection = queryCollection.OrderBy("dimensionY", queryAsc2)
+					}
+				}
+
+				if r.URL.Query().Get("ratingMin") != "" || r.URL.Query().Get("ratingMax") != "" {
+					if queryEmpty {
+						queryEmpty = false
+						queryCollection = collectionRef.OrderBy("rating", queryAsc2)
+					} else {
+						queryCollection = queryCollection.OrderBy("rating", queryAsc2)
 					}
 				}
 
@@ -422,10 +463,45 @@ func spritesShareHTTP(w http.ResponseWriter, r *http.Request) {
 					json.NewEncoder(w).Encode(data)
 					return
 				} else {
-					data := normalMessage{Message: "Sprites rated!"}
-					w.WriteHeader(http.StatusOK)
-					json.NewEncoder(w).Encode(data)
-					return
+					// Have basic Sprite rating field
+					dsnap, err := client.Collection("sprites").Doc(pathParams[2]).Get(ctx)
+					if err != nil {
+						data := normalMessage{Message: fmt.Sprintf("%v", err)}
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(data)
+						return
+					} else {
+						data := dsnap.Data()
+						allRating := data["ratings"].(map[string]interface{})
+						currentRating := uint8(0)
+						for k := range allRating {
+							currentRating += uint8(allRating[k].(int64))
+						}
+						currentRating /= uint8(len(allRating))
+
+						// Add to Database
+						_, err := client.Collection("sprites").Doc(pathParams[2]).Update(ctx, []firestore.Update{
+							{
+								Path:  "rating",
+								Value: currentRating,
+							},
+						})
+						if err != nil {
+							data := normalMessage{Message: fmt.Sprintf("%v", err)}
+							w.WriteHeader(http.StatusBadRequest)
+							json.NewEncoder(w).Encode(data)
+							return
+						} else {
+							data := normalMessage{Message: "Sprites rated!"}
+							w.WriteHeader(http.StatusOK)
+							json.NewEncoder(w).Encode(data)
+							return
+						}
+
+						w.WriteHeader(http.StatusOK)
+						json.NewEncoder(w).Encode(data)
+						return
+					}
 				}
 			}
 		}
