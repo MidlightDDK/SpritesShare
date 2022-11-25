@@ -59,7 +59,7 @@ Roadmap
 		*MAKE - POST /sprites/:id
 		*Validate tags string [azAZ01]
 		*Pagination?
-		MAKE - GET /sprites?query
+		*MAKE - GET /sprites?query
 
 		tags array-contains-any (tag = tag1,tag2 -> split)
 		author =
@@ -91,7 +91,8 @@ Roadmap
 		Query by rating
 
 	Unity App
-		Prepare all API querys
+		*Prepare all API querys
+		Upload 10 sprites
 		MAKE - Welcome
 		MAKE - Import
 		MAKE - Browse
