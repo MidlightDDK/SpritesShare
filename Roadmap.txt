@@ -92,7 +92,7 @@ Roadmap
 
 	Unity App
 		*Prepare all API querys
-		Upload 10 sprites
+		*Upload 10 sprites
 		MAKE - Welcome
 		MAKE - Import
 		MAKE - Browse
