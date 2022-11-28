@@ -5,6 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: Assets/AdsPortal/Scenes/AdsPortalScene.unity
+    guid: 2cea218d2d2bec14e890a64fe0860f4c
   - enabled: 1
     path: Assets/Scenes/SpritesScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729

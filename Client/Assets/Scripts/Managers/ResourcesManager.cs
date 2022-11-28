@@ -13,6 +13,7 @@ public static class ResourcesManager
     public enum PrefabPath
     {
         Sprites,
+        SpriteGridItem,
     }
 
     public static string GetPrefabPath( PrefabPath prefabPath )

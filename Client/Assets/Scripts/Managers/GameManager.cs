@@ -20,18 +20,14 @@ public class GameManager : MonoBehaviour
             Destroy( gameObject );
         }
     }
-
-    // Variables
     
-
     // Functions
     private void Start()
     {
-        WelcomePage.Instance.LoadSprites();
-    }
-
-    private void Update()
-    {
-        
+        CanvasManager.Instance.Init();
+        WelcomePage.Instance.Init();
+        UploadPage.Instance.Init();
+        DetailsPage.Instance.Init();
+        BrowsePage.Instance.Init();
     }
 }

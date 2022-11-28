@@ -45,7 +45,7 @@ public class SpritesSender : ScriptableObject
             }
 
             // Send logic
-            await SpritesController.AddSprites( new AddSpritesRequest(){
+            await SpritesController.AddSprites( new AddSpriteRequest(){
                 author = spritesAuthor,
                 content = ConvertManager.GetStringFromTexture( spritesContent ),
                 description = spritesDescription,

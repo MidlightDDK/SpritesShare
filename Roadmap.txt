@@ -93,10 +93,25 @@ Roadmap
 	Unity App
 		*Prepare all API querys
 		*Upload 10 sprites
-		MAKE - Welcome
-		MAKE - Import
-		MAKE - Browse
-		MAKE - View
-		Prepare a tutorial for how to use
-		Ads Portal?
-		Host on itch
+		*MAKE - Welcome
+		*MAKE - Import
+			blackAndWhite,16x16,mob
+		*MAKE - View
+		*MAKE - Browse
+		*Ads Portal?
+		*Sound Button clicks
+		*Background Music
+		*Upload Sprites
+		*Prepare a tutorial for how to use
+		*Host on itch
+	Remaining
+		WebGL Allow File Upload
+		WebGL Allow CORS
+			"Access-Control-Allow-Credentials": "true",
+			"Access-Control-Allow-Headers": "Accept, X-Access-Token, X-Application-Name, X-Request-Sent-Time",
+			"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+			"Access-Control-Allow-Origin": "*",
+		Database switch to Postgres
+		Itch.io Setup page
+		Google Cloud Make the Labs
+		CodeChef prepare for the contest

@@ -16,23 +16,68 @@ public class WelcomePage
             return m_Instance;
         }
     }
+    private bool m_IsInit = false;
 
     // Variables
-    public Sprites[] GetAllSpritesResponse = null;
+    private WelcomePageReferencer m_Referencer;
+    private const uint m_SpriteCount = 30;
+    private const float m_AppearInterval = 0.5f;
 
     // Functions
 
     private WelcomePage()
     {
-        
+        // Get Referencer
+        m_Referencer = Referencer.WelcomePage;
+
+        // Button action
+        m_Referencer.BrowseButton.onClick.AddListener( () => CanvasManager.Instance.SwitchCanvas( CanvasManager.Canvases.Browse ) );
+        m_Referencer.UploadButton.onClick.AddListener( () => CanvasManager.Instance.SwitchCanvas( CanvasManager.Canvases.Upload ) );
+        m_Referencer.ToggleMusicButton.onClick.AddListener( ToggleMusicLogic );
+        m_Referencer.ToggleMusicText.text = "Stop Music";
+        m_Referencer.ExitButton.onClick.AddListener( Application.Quit );
     }
 
-    public async void LoadSprites()
+    public void Init()
     {
-        GetAllSpritesResponse = await SpritesController.GetAllSprites();
+        if( m_IsInit )
+        {
+            return;
+        }
+        m_IsInit = true;
 
-        GameObject spritesPrefab = GameObject.Instantiate( Resources.Load<GameObject>( ResourcesManager.GetPrefabPath( ResourcesManager.PrefabPath.Sprites ) ) );
-        SpriteRenderer spriteRenderer = spritesPrefab.GetComponent<SpriteRenderer>();
-        spriteRenderer.sprite = ConvertManager.GetSpriteFromString( GetAllSpritesResponse[0].content, GetAllSpritesResponse[0].dimensionX, GetAllSpritesResponse[0].dimensionY );
+        LoadSprites();
+    }
+
+    private void ToggleMusicLogic()
+    {
+        if( m_Referencer.MusicPlayer.isPlaying )
+        {
+            m_Referencer.MusicPlayer.Stop();
+            m_Referencer.ToggleMusicText.text = "Play Music";
+        }
+        else
+        {
+            m_Referencer.MusicPlayer.Play();
+            m_Referencer.ToggleMusicText.text = "Stop Music";
+        }
+    }
+
+    private async void LoadSprites()
+    {
+        SpritesObjectController.GetAllSpritesResponse = await SpritesController.GetAllSprites();
+        GameManager.Instance.StartCoroutine( SpawnSprite() );
+    }
+
+    IEnumerator SpawnSprite()
+    {
+        GameObject spritesContainer = new GameObject( "WelcomeSpritesContainer" );
+        spritesContainer.transform.position = Vector3.zero;
+
+        for( uint i = 0; i < m_SpriteCount; i++ )
+        {
+            GameObject spritesPrefab = GameObject.Instantiate( Resources.Load<GameObject>( ResourcesManager.GetPrefabPath( ResourcesManager.PrefabPath.Sprites ) ), spritesContainer.transform );
+            yield return new WaitForSeconds( m_AppearInterval );
+        }
     }
 }
